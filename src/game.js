@@ -12,6 +12,9 @@ const ui = {
   xpBar: document.querySelector("#xpBar"),
   loadout: document.querySelector("#loadout"),
   lessonToast: document.querySelector("#lessonToast"),
+  mobilePause: document.querySelector("#mobilePause"),
+  touchPad: document.querySelector("#touchPad"),
+  touchKnob: document.querySelector("#touchKnob"),
   startOverlay: document.querySelector("#startOverlay"),
   startButton: document.querySelector("#startButton"),
   upgradeOverlay: document.querySelector("#upgradeOverlay"),
@@ -24,7 +27,16 @@ const ui = {
 
 const TAU = Math.PI * 2;
 const keys = new Set();
-const pointer = { x: 0, y: 0, active: false };
+const pointer = {
+  x: 0,
+  y: 0,
+  startX: 0,
+  startY: 0,
+  dx: 0,
+  dy: 0,
+  id: null,
+  active: false,
+};
 
 const weaponCatalog = {
   antibody: {
@@ -522,6 +534,7 @@ function startRun() {
   run.state = "playing";
   ui.startOverlay.classList.remove("show");
   ui.gameOverOverlay.classList.remove("show");
+  ui.touchPad.classList.add("hint");
   syncLoadout();
 }
 
@@ -532,6 +545,8 @@ function resize() {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   pointer.x = window.innerWidth / 2;
   pointer.y = window.innerHeight / 2;
+  pointer.startX = pointer.x;
+  pointer.startY = pointer.y;
 }
 
 function update(dt) {
@@ -561,14 +576,13 @@ function updatePlayer(dt) {
   if (keys.has("arrowdown") || keys.has("s")) dy += 1;
 
   if (pointer.active) {
-    const sx = window.innerWidth / 2;
-    const sy = window.innerHeight / 2;
-    const px = pointer.x - sx;
-    const py = pointer.y - sy;
+    const px = pointer.dx;
+    const py = pointer.dy;
     const distance = Math.hypot(px, py);
     if (distance > 18) {
-      dx += px / Math.max(120, distance);
-      dy += py / Math.max(120, distance);
+      const strength = Math.min(1, distance / 78);
+      dx += (px / distance) * strength;
+      dy += (py / distance) * strength;
     }
   }
 
@@ -905,6 +919,7 @@ function showLesson(message) {
 
 function endRun() {
   run.state = "gameover";
+  ui.touchPad.classList.remove("active", "hint");
   const seconds = Math.floor(run.elapsed);
   ui.gameOverTitle.textContent = `Survived ${formatTime(seconds)}`;
   ui.gameOverCopy.textContent = `Final culture score: ${run.score}. Level ${run.player.level} macrophage with ${run.insights} microbiology insights and ${run.enemies.length} active pathogens in the dish.`;
@@ -1199,6 +1214,7 @@ function loop(now) {
 function pauseToggle() {
   if (run.state === "playing") {
     run.state = "paused";
+    ui.touchPad.classList.remove("active", "hint");
     ui.startOverlay.querySelector(".kicker").textContent = "Assay paused";
     ui.startOverlay.querySelector("h2").textContent = "The culture is on ice.";
     ui.startOverlay.querySelector(".copy").textContent = "Resume when you are ready to keep the macrophage moving.";
@@ -1210,6 +1226,7 @@ function pauseToggle() {
   if (run.state === "paused") {
     run.state = "playing";
     ui.startOverlay.classList.remove("show");
+    ui.touchPad.classList.add("hint");
   }
 }
 
@@ -1255,21 +1272,66 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 canvas.addEventListener("pointermove", (event) => {
-  pointer.x = event.clientX;
-  pointer.y = event.clientY;
+  if (!pointer.active || event.pointerId !== pointer.id) {
+    return;
+  }
+  updatePointer(event);
 });
 canvas.addEventListener("pointerdown", (event) => {
+  if (run.state !== "playing") {
+    return;
+  }
   pointer.active = true;
+  pointer.id = event.pointerId;
+  pointer.startX = event.clientX;
+  pointer.startY = event.clientY;
   pointer.x = event.clientX;
   pointer.y = event.clientY;
+  pointer.dx = 0;
+  pointer.dy = 0;
+  ui.touchPad.classList.remove("hint");
+  ui.touchPad.classList.add("active");
+  ui.touchPad.style.left = `${event.clientX - 48}px`;
+  ui.touchPad.style.top = `${event.clientY - 48}px`;
+  ui.touchPad.style.bottom = "auto";
+  updateTouchKnob();
   canvas.setPointerCapture(event.pointerId);
 });
-canvas.addEventListener("pointerup", () => {
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+
+function updatePointer(event) {
+  pointer.x = event.clientX;
+  pointer.y = event.clientY;
+  const dx = event.clientX - pointer.startX;
+  const dy = event.clientY - pointer.startY;
+  const distance = Math.hypot(dx, dy);
+  const maxDistance = 58;
+  const scale = distance > maxDistance ? maxDistance / distance : 1;
+  pointer.dx = dx * scale;
+  pointer.dy = dy * scale;
+  updateTouchKnob();
+}
+
+function updateTouchKnob() {
+  ui.touchKnob.style.transform = `translate(calc(-50% + ${pointer.dx}px), calc(-50% + ${pointer.dy}px))`;
+}
+
+function endPointer(event) {
+  if (event.pointerId !== pointer.id) {
+    return;
+  }
   pointer.active = false;
-});
-canvas.addEventListener("pointercancel", () => {
-  pointer.active = false;
-});
+  pointer.id = null;
+  pointer.dx = 0;
+  pointer.dy = 0;
+  updateTouchKnob();
+  ui.touchPad.classList.remove("active");
+  ui.touchPad.classList.add("hint");
+  ui.touchPad.style.left = "";
+  ui.touchPad.style.top = "";
+  ui.touchPad.style.bottom = "";
+}
 
 ui.startButton.addEventListener("click", () => {
   if (run.state === "paused") {
@@ -1279,6 +1341,7 @@ ui.startButton.addEventListener("click", () => {
   }
 });
 ui.restartButton.addEventListener("click", startRun);
+ui.mobilePause.addEventListener("click", pauseToggle);
 
 resize();
 syncLoadout();

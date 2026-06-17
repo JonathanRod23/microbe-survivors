@@ -31,6 +31,7 @@ body {
 body {
   background: #07090b;
   color: var(--ink);
+  overscroll-behavior: none;
 }
 
 button {
@@ -263,6 +264,67 @@ button:focus-visible {
   transform: translate(-50%, 0);
 }
 
+.mobile-pause,
+.touch-pad {
+  display: none;
+}
+
+.mobile-pause {
+  position: absolute;
+  z-index: 5;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(112px, calc(env(safe-area-inset-bottom) + 112px));
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(18, 24, 27, 0.78);
+  box-shadow: 0 14px 34px var(--shadow);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.touch-pad {
+  position: absolute;
+  z-index: 2;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: max(112px, calc(env(safe-area-inset-bottom) + 112px));
+  width: 96px;
+  height: 96px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.055);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.94);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.touch-pad.active,
+.touch-pad.hint {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.touch-pad.hint {
+  opacity: 0.42;
+}
+
+.touch-pad div {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(139, 224, 143, 0.78);
+  box-shadow: 0 0 24px rgba(139, 224, 143, 0.26);
+  transform: translate(-50%, -50%);
+}
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -472,6 +534,10 @@ button:focus-visible {
 }
 
 @media (max-width: 760px) {
+  button {
+    min-height: 44px;
+  }
+
   .hud-top {
     top: 10px;
     left: 10px;
@@ -494,7 +560,7 @@ button:focus-visible {
   .hud-bottom {
     left: 10px;
     right: 10px;
-    bottom: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
@@ -506,6 +572,23 @@ button:focus-visible {
 
   .lesson-toast {
     bottom: 126px;
+  }
+
+  .mobile-pause,
+  .touch-pad.hint,
+  .touch-pad.active {
+    display: block;
+  }
+
+  .overlay {
+    align-items: start;
+    overflow-y: auto;
+    padding: max(14px, env(safe-area-inset-top)) 12px max(18px, env(safe-area-inset-bottom));
+  }
+
+  .panel {
+    margin: auto 0;
+    max-height: none;
   }
 
   .tool span {
@@ -523,22 +606,122 @@ button:focus-visible {
 
 @media (max-width: 480px) {
   .hud-top {
-    align-items: stretch;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .brand {
+    padding: 9px 10px;
   }
 
   .brand p {
     display: none;
   }
 
+  .brand h1 {
+    font-size: 0.92rem;
+  }
+
   .stat-row {
+    display: grid;
+    grid-template-columns: repeat(2, 54px);
     gap: 6px;
+    justify-content: end;
+  }
+
+  .stat {
+    min-width: 0;
+    padding: 7px 8px;
   }
 
   .stat span {
     display: none;
   }
 
+  .stat strong {
+    font-size: 0.92rem;
+  }
+
+  .hud-bottom {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .meter-stack label {
+    margin-bottom: 5px;
+  }
+
+  .loadout {
+    display: none;
+  }
+
+  .lesson-toast {
+    bottom: max(110px, calc(env(safe-area-inset-bottom) + 110px));
+    font-size: 0.82rem;
+  }
+
+  .mobile-pause {
+    bottom: max(92px, calc(env(safe-area-inset-bottom) + 92px));
+  }
+
+  .touch-pad {
+    bottom: max(92px, calc(env(safe-area-inset-bottom) + 92px));
+    width: 86px;
+    height: 86px;
+  }
+
+  .touch-pad div {
+    width: 38px;
+    height: 38px;
+  }
+
   .panel {
-    padding: 20px;
+    padding: 16px;
+  }
+
+  .panel h2 {
+    font-size: 1.45rem;
+  }
+
+  .copy {
+    font-size: 0.92rem;
+    line-height: 1.42;
+  }
+
+  .controls {
+    margin: 12px 0;
+  }
+
+  .controls span {
+    font-size: 0.68rem;
+  }
+
+  .enemy-guide {
+    margin: 12px 0;
+    padding: 10px;
+  }
+
+  .upgrade-grid {
+    margin-top: 12px;
+  }
+
+  .upgrade-card {
+    padding: 12px;
+  }
+
+  .fact,
+  .question {
+    font-size: 0.82rem;
+  }
+
+  .answer-button {
+    min-height: 42px;
+    font-size: 0.84rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .answer-button:hover {
+    background: rgba(255, 255, 255, 0.08);
   }
 }

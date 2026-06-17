@@ -15,7 +15,7 @@ Then visit `http://localhost:5174`.
 ## Controls
 
 - Move with `WASD` or arrow keys.
-- Aim and add touch-style movement pressure with mouse or touch.
+- On mobile, drag anywhere on the playfield to move.
 - Press `Space` to pause.
 
 ## Current Features
