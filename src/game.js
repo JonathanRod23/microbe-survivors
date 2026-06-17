@@ -874,7 +874,6 @@ function showUpgradeChoices() {
     ui.upgradeChoices.append(card);
   }
   ui.upgradeOverlay.classList.add("show");
-  ui.upgradeChoices.querySelector("button")?.focus();
 }
 
 function applyUpgrade(choice, mastered) {
