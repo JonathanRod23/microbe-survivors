@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Microbe Survivors</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game-frame">
+      <canvas id="game" width="1280" height="720" aria-label="Microbe Survivors game field"></canvas>
+
+      <section class="hud hud-top" aria-label="Run status">
+        <div class="brand">
+          <p>Microbe Survivors</p>
+          <h1>Petri Dish Panic</h1>
+        </div>
+        <div class="stat-row">
+          <div class="stat">
+            <span>Time</span>
+            <strong id="time">00:00</strong>
+          </div>
+          <div class="stat">
+            <span>Level</span>
+            <strong id="level">1</strong>
+          </div>
+          <div class="stat">
+            <span>Culture</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="stat">
+            <span>Insights</span>
+            <strong id="insights">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="hud hud-bottom" aria-label="Vitals and tools">
+        <div class="meter-stack">
+          <label>
+            <span>Membrane</span>
+            <b id="healthText">100%</b>
+          </label>
+          <div class="meter">
+            <div id="healthBar"></div>
+          </div>
+        </div>
+        <div class="meter-stack">
+          <label>
+            <span>Research</span>
+            <b id="xpText">0 / 8</b>
+          </label>
+          <div class="meter xp">
+            <div id="xpBar"></div>
+          </div>
+        </div>
+        <div class="loadout" id="loadout"></div>
+      </section>
+
+      <section class="lesson-toast" id="lessonToast" aria-live="polite"></section>
+
+      <section class="overlay show" id="startOverlay" aria-label="Start menu">
+        <div class="panel">
+          <p class="kicker">Survival assay alpha</p>
+          <h2>Keep the macrophage alive.</h2>
+          <p class="copy">
+            Drift through the dish, harvest nutrient motes, and evolve your lab kit before
+            bacteria, virions, and fungal spores overwhelm the culture. Each evolution asks
+            a tiny microbiology question; correct calls strengthen the adaptation. Your
+            first weapon is the green antibody circles orbiting the macrophage; brush them
+            into enemies to damage the culture.
+          </p>
+          <div class="controls">
+            <span>WASD / arrows</span>
+            <span>Mouse or touch aims</span>
+            <span>Green antibody circles deal damage</span>
+            <span>Space pauses</span>
+          </div>
+          <div class="enemy-guide" aria-label="Enemy guide">
+            <h3>Organism guide</h3>
+            <dl>
+              <div>
+                <dt><i class="enemy-dot bacterium"></i>Bacterium</dt>
+                <dd>Single-celled prokaryote. Common, steady pressure; antibiotic targets are often bacterial structures.</dd>
+              </div>
+              <div>
+                <dt><i class="enemy-dot virus"></i>Virion</dt>
+                <dd>Virus particle outside a host cell. Fast and fragile; phages are viruses that infect bacteria.</dd>
+              </div>
+              <div>
+                <dt><i class="enemy-dot fungus"></i>Fungal spore</dt>
+                <dd>Reproductive fungal form. Slow and sturdy; fungi are eukaryotes, so they differ from bacteria.</dd>
+              </div>
+            </dl>
+          </div>
+          <button id="startButton" type="button">Start Run</button>
+        </div>
+      </section>
+
+      <section class="overlay" id="upgradeOverlay" aria-label="Upgrade choices">
+        <div class="panel upgrade-panel">
+          <p class="kicker">Level up</p>
+          <h2>Evolve with evidence</h2>
+          <div class="upgrade-grid" id="upgradeChoices"></div>
+        </div>
+      </section>
+
+      <section class="overlay" id="gameOverOverlay" aria-label="Game over">
+        <div class="panel">
+          <p class="kicker">Culture collapsed</p>
+          <h2 id="gameOverTitle">Run complete</h2>
+          <p class="copy" id="gameOverCopy"></p>
+          <button id="restartButton" type="button">Restart Assay</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="./src/game.js"></script>
+  </body>
+</html>
